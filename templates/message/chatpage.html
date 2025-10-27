@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+
+<body class="bg-yellow-50 flex flex-col h-screen">
+
+  <!-- Chat Header -->
+  <header class="bg-yellow-400 text-white px-4 py-3 flex items-center shadow-md">
+    <h1 class="text-lg font-semibold">
+      <div class="flex items-center space-x-3">
+         {% if other_user.usertype == "student" %}
+            {% if other_profile.profile_img %}
+              <a href="{% url 'view_student_profile' other_user.id %}">
+                <img src="{{ other_profile.profile_img.url }}" class="w-10 h-10 rounded-full" alt="profile">
+              </a>
+            {% else %}
+              <a href="{% url 'view_student_profile' other_user.id %}">
+                <img src="{% static 'images/default.jpg' %}" class="w-10 h-10 rounded-full" alt="default profile">
+              </a>
+            {% endif %}
+         {% elif other_user.usertype == "tutor" %}
+            {% if other_profile.profile_img %}
+              <a href="{% url 'view_tutor_profile' other_user.id %}">
+                <img src="{{ other_profile.profile_img.url }}" class="w-10 h-10 rounded-full" alt="profile">
+              </a>
+            {% else %}
+              <a href="{% url 'view_tutor_profile' other_user.id %}">
+                <img src="{% static 'images/default.jpg' %}" class="w-10 h-10 rounded-full" alt="default profile">
+              </a>
+            {% endif %}
+         {% endif %}
+
+         <span class="font-bold">{{ other_user.username }}</span>
+      </div>
+    </h1>
+  </header>
+
+  <!-- Chat Messages Container -->
+  <main id="chat-log" class="flex-1 overflow-y-auto p-4 space-y-3 bg-yellow-50">
+    {% for msg in messages %}
+      <div class="flex {% if msg.sender.id == current_user.id %}justify-end{% else %}justify-start{% endif %}">
+        <div class="max-w-xs md:max-w-md px-4 py-2 rounded-2xl shadow text-sm relative
+          {% if msg.sender.id == current_user.id %}
+            bg-blue-600 text-white rounded-br-none
+          {% else %}
+            bg-white text-gray-900 rounded-bl-none border border-yellow-200
+          {% endif %}">
+          
+          <p class="break-words">{{ msg.content }}</p>
+          
+          <div class="flex justify-end items-center text-xs mt-1 {% if msg.sender.id == current_user.id %}text-gray-200{% else %}text-gray-400{% endif %}">
+            {% if msg.sender.id == current_user.id %}
+              <span class="mr-1">✔✔</span>
+            {% endif %}
+            <span>{{ msg.timestamp|date:"H:i" }}</span>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-gray-400 text-center">No previous messages</p>
+    {% endfor %}
+  </main>
+
+  <!-- Chat Input Area -->
+  <footer class="bg-white border-t border-gray-300 p-3 flex items-center">
+    <input
+      id="chat-message-input"
+      type="text"
+      placeholder="Type your message..."
+      class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+    />
+    <button
+      id="chat-message-submit"
+      class="ml-2 bg-yellow-400 text-white rounded-full px-4 py-2 font-medium hover:bg-yellow-500 transition"
+    >
+      Send
+    </button>
+  </footer>
+
+  <!-- WebSocket Script -->
+  <script>
+    const currentUser = "{{ current_user.id }}";
+    const currentUsername = "{{ current_user.username }}";
+    const otherUserId = "{{ other_user.id }}";
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+
+    const chatSocket = new WebSocket(
+      wsScheme + "://" + window.location.host + "/ws/chat/" + otherUserId + "/"
+    );
+
+    const chatLog = document.getElementById("chat-log");
+    const inputField = document.getElementById("chat-message-input");
+    const sendButton = document.getElementById("chat-message-submit");
+
+    // Append new message dynamically
+    function appendMessage(message, username, timestamp) {
+      const isMine = username === currentUsername;
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "flex " + (isMine ? "justify-end" : "justify-start");
+
+      msgDiv.innerHTML = `
+        <div class="max-w-xs md:max-w-md px-4 py-2 rounded-2xl shadow text-sm relative
+          ${isMine ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-900 rounded-bl-none border border-yellow-200'}">
+          <p class="break-words">${message}</p>
+          <div class="flex justify-end items-center text-xs mt-1 ${isMine ? 'text-gray-200' : 'text-gray-400'}">
+            ${isMine ? '<span class="mr-1">✔✔</span>' : ''}
+            <span>${new Date(timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+          </div>
+        </div>
+      `;
+      chatLog.appendChild(msgDiv);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // ✅ DO NOT re-render old messages (we already rendered them via Django template)
+    // Only handle *new incoming messages* from WebSocket
+
+    // Incoming WebSocket messages
+    chatSocket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      appendMessage(data.message, data.username, data.timestamp);
+    };
+
+    chatSocket.onclose = function(e) {
+      console.error("Chat socket closed unexpectedly");
+    };
+
+    // Send message
+    sendButton.onclick = function() {
+      const message = inputField.value.trim();
+      if (message) {
+        chatSocket.send(JSON.stringify({ message: message }));
+        inputField.value = "";
+      }
+    };
+
+    // Send on Enter key
+    inputField.addEventListener("keyup", function(e) {
+      if (e.key === "Enter") sendButton.click();
+    });
+
+    // ✅ Auto scroll to bottom when page loads
+    window.onload = function() {
+      chatLog.scrollTop = chatLog.scrollHeight;
+    };
+  </script>
+</body>
+
+{% endblock content %}

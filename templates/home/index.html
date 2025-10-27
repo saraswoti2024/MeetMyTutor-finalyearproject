@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% block content %}
 {% load static %}
@@ -19,16 +20,36 @@
     style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1596495577886-d920f1fb7238');">
     <div class="absolute inset-0 bg-black opacity-40"></div>
     <div class="container mx-auto px-4 relative z-10">
+        {% if request.user.usertype == 'student' %}
         <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in-up">Find the Right Tutor Near
             You</h1>
         <p class="text-lg md:text-xl mb-8 opacity-90 animate-fade-in-up delay-200">Connect online. Learn offline & online with
             trusted tutors in your city.</p>
+        
+        {% elif request.user.usertype == 'tutor' %}
 
+         <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in-up">Find the Student and Start earning</h1>
+        <p class="text-lg md:text-xl mb-8 opacity-90 animate-fade-in-up delay-200">Connect online. Teach offline & online .</p>
+
+         {% else %}
+           <!-- The original "Find Tutors" button now acts as a primary CTA for the search section -->
+              <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight animate-fade-in-up">Find the Right Tutor Near
+            You</h1>
+        <p class="text-lg md:text-xl mb-8 opacity-90 animate-fade-in-up delay-200">Connect online. Learn offline & online with
+            trusted tutors in your city.</p>
+        <a href="{% url 'all_tutor' %}"
+            class="bg-yellow-custom text-black font-bold py-4 px-10 rounded-full text-lg md:text-xl hover:bg-yellow-darker transition duration-300 ease-in-out transform hover:scale-105 inline-block animate-fade-in-up delay-400 shadow-lg mt-8">
+            start your search
+        </a>
+       {% endif %}
+
+        {% if request.user.usertype == 'student' %}
         <!-- The original "Find Tutors" button now acts as a primary CTA for the search section -->
         <a href="{% url 'all_tutor' %}"
             class="bg-yellow-custom text-black font-bold py-4 px-10 rounded-full text-lg md:text-xl hover:bg-yellow-darker transition duration-300 ease-in-out transform hover:scale-105 inline-block animate-fade-in-up delay-400 shadow-lg mt-8">
             Start Your Search
         </a>
+        {% endif %}
     </div>
 </section>
 

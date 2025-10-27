@@ -8,3 +8,5 @@ class CustomUser(AbstractUser):
     )
     email = models.EmailField(unique=True)
     usertype = models.CharField(max_length=100,choices=user_type,null=False,blank=False,default='student')
+
+

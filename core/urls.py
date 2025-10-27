@@ -31,4 +31,5 @@ urlpatterns = [
     path('requests/', include('requestapp.urls')),
     path('mystudents/', include('mystudentsapp.urls')),
     path('mytutors/', include('mytutorapp.urls')),
+    path('messages/', include('message.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -30,7 +30,12 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+
+
+
+
 INSTALLED_APPS = [
+    'daphne',
     'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
 ]
 
 EXTERNAL_APPS = [
@@ -52,8 +58,11 @@ EXTERNAL_APPS = [
     'requestapp',
     'mystudentsapp',
     'mytutorapp',
+    'message',
     'django.contrib.humanize',
 ]
+
+
 INSTALLED_APPS.extend(EXTERNAL_APPS)
 
 MIDDLEWARE = [
@@ -79,26 +88,57 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.chat_requests',
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+
+# WSGI application (for traditional HTTP)
+# WSGI_APPLICATION = 'core.wsgi.application'
+
+# ASGI application (for HTTP + WebSocket via Channels)
+ASGI_APPLICATION = "core.asgi.application"
+
+# Channel layers (in-memory, no Redis required)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+
 
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # postgressql
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('NAME'), ##database ma vako name
+#         'USER': config('USER'), #database user
+#         'PASSWORD': config('PASSWORD'), #database password
+#         'HOST': config('HOST', default= '127.0.0.1'),
+#         'PORT': config('PORT', default='5432'),
+#     }
+# }
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()  # This loads variables from .env
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('NAME'), ##database ma vako name
-        'USER': config('USER'), #database user
-        'PASSWORD': config('PASSWORD'), #database password
-        'HOST': config('HOST', default='localhost'),
-        'PORT': config('PORT', default='5432'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 

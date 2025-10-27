@@ -99,7 +99,19 @@
                 {% endif %}
                </td>
                <td class="px-6 py-4">
-                  <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-semibold shadow">message</button>
+                     {% if request.user.usertype == 'tutor' %}
+        <!-- Chat with student -->
+        <a href="{% url 'personal_chat' i.student_user.user.id %}" 
+           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+           Message
+        </a>
+    {% else %}
+        <!-- Chat with tutor -->
+        <a href="{% url 'personal_chat' i.tutor_user.user.id %}" 
+           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+           Message
+        </a>
+    {% endif %}
                </td>
 
                {% if i.feedback_given %}

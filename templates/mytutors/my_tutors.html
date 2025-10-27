@@ -7,8 +7,7 @@
     
     <!-- Header -->
     <div class="text-center mb-12">
-      <h1 class="text-4xl font-bold text-gray-800 mb-2">My Tutoring Requests</h1>
-      <p class="text-lg text-gray-600">Track your requests, updates, and tutor responses.</p>
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">My Tutors List</h1>
     </div>
         <!-- View Completed Button -->
         <div class="flex justify-start gap-3 py-3">
@@ -96,7 +95,19 @@
                 {% endif %}
                </td>
                <td class="px-2 py-1">
-                <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-semibold shadow">message</button>
+                    {% if request.user.usertype == 'tutor' %}
+        <!-- Chat with student -->
+        <a href="{% url 'personal_chat' i.student_user.user.id %}" 
+           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+           Message
+        </a>
+    {% else %}
+        <!-- Chat with tutor -->
+        <a href="{% url 'personal_chat' i.tutor_user.user.id %}" 
+           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+           Message
+        </a>
+    {% endif %}
                </td>
             </tr>
             {% endfor %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex h-screen bg-yellow-50">
+
+  <!-- Left Pane: Chats -->
+  <aside class="w-80 border-r border-gray-300 bg-white overflow-y-auto">
+    <h2 class="text-xl font-semibold p-4 bg-yellow-400 text-white">Chats</h2>
+    <ul>
+      {% for chat in chats %}
+      <li class="hover:bg-yellow-100 cursor-pointer border-b border-gray-200">
+        <a href="{% url 'personal_chat' chat.user.id %}" class="flex items-center p-4">
+          <img class="w-12 h-12 rounded-full mr-3 object-cover border" 
+               src="#" alt="">
+          <div class="flex-1">
+            <p class="font-semibold text-gray-900">{{ chat.user.username }}</p>
+            {% if chat.last_message %}
+            <p class="text-gray-500 text-sm truncate">{{ chat.last_message.content }}</p>
+            {% endif %}
+          </div>
+          {% if chat.last_message %}
+          <span class="text-gray-400 text-xs">{{ chat.last_message.timestamp|date:"H:i" }}</span>
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </aside>
+
+  <!-- Right Pane: Empty by default or can embed conversation here -->
+  <div class="flex-1 flex items-center justify-center text-gray-400">
+    Select a chat to start messaging
+  </div>
+
+</div>
+{% endblock %}

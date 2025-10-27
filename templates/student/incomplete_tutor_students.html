@@ -97,7 +97,19 @@
   
               <!-- Actions -->
               <td class="px-6 py-4 space-x-2">
-                <a href="tutor_messages.html" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">Message</a>
+                {% if request.user.usertype == 'tutor' %}
+                <!-- Chat with student -->
+                <a href="{% url 'personal_chat' i.student_user.user.id %}" 
+                  class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+                  Message
+                </a>
+            {% else %}
+                <!-- Chat with tutor -->
+                <a href="{% url 'personal_chat' i.tutor_user.user.id %}" 
+                  class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-xs hover:bg-blue-700">
+                  Message
+                </a>
+            {% endif %}
               </td>
               <form action="{% url 'complete' i.id %}" method="post">
                 {% csrf_token %}

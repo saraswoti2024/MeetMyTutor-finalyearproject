@@ -6,3 +6,5 @@ class districts(models.Model):
 
 class subjects_list(models.Model):
     subject_name = models.CharField(max_length=100)
+
+

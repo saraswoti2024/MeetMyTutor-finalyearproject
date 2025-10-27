@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -34,7 +35,9 @@
   
 {% endblock content %}
 
-<div><h1>chatbot</h1></div>
+<div>
+   {% include "chatbot.html" %}
+</div>
 
 {% include "footer.html" %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
@@ -53,7 +56,6 @@
     {% endfor %}
 </script>
 {% endif %}
-
 
 </body>
 </html>

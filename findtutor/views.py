@@ -114,6 +114,7 @@ def view_tutor_profile_view(request,id):
 
 @login_required(login_url='log_in')
 def view_tutor_profile_view2(request,id):
+    print(id,'-----------------------profile2')
     profile_id2 = get_object_or_404(Requesting_tutor,id=id)
     feedbacks = Feedback.objects.filter(tutor_user=profile_id2.tutor_user).order_by('-created_at')
     avg_rating = feedbacks.aggregate(Avg('rating'))['rating__avg'] or 0

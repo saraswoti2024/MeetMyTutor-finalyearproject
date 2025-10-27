@@ -1,0 +1,185 @@
+<!-- chatbot.html -->
+<div id="chatbot-root" class="fixed bottom-6 right-6 z-[1000]">
+  <!-- Floating Chat Button -->
+  <button id="chatbot-toggle"
+    class="bg-amber-500 text-black w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-amber-400 transition duration-300">
+    <i class="fa-solid fa-comments text-2xl"></i>
+  </button>
+
+  <!-- Chatbot Window -->
+  <div id="chatbot-window"
+    class="hidden flex flex-col w-80 max-w-[90vw] h-[520px] bg-white border border-gray-200 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 transform translate-y-4 opacity-0">
+    
+    <!-- Header -->
+    <div class="bg-amber-500 text-black font-semibold text-center py-3 flex items-center justify-between px-3 flex-shrink-0">
+      <span>MeetMyTutor Chatbot 🤖</span>
+      <button id="chatbot-close" class="text-black hover:text-gray-700">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Messages area (scrollable) -->
+    <div id="chatbot-messages"
+      class="flex-1 p-3 overflow-y-auto space-y-2 bg-gray-50 scroll-smooth h-0 min-h-[0px]">
+    </div>
+
+    <!-- Suggestions area (scrollable if needed) -->
+    <div id="chatbot-suggestions"
+      class="flex flex-wrap gap-2 p-2 border-t bg-gray-50 overflow-y-auto max-h-28 flex-shrink-0">
+    </div>
+
+    <!-- Input -->
+    <div class="flex items-center p-2 border-t bg-white flex-shrink-0">
+      <input id="chatbot-input" type="text" placeholder="Ask me something..."
+        class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+      <button id="chatbot-send"
+        class="ml-2 bg-amber-500 hover:bg-amber-400 text-black px-3 py-2 rounded-lg text-sm font-semibold transition">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- DOM
+  const toggleBtn = document.getElementById("chatbot-toggle");
+  const chatbot = document.getElementById("chatbot-window");
+  const closeBtn = document.getElementById("chatbot-close");
+  const messages = document.getElementById("chatbot-messages");
+  const input = document.getElementById("chatbot-input");
+  const sendBtn = document.getElementById("chatbot-send");
+  const suggestionsDiv = document.getElementById("chatbot-suggestions");
+
+  // --- State
+  let category = null;
+
+  const data = {
+    "Tutors": [
+      
+      "How does lesson negotiation work?",
+      "How do tutors earn money?",
+      "What is the 'My Students' section?",
+    ],
+    "Students": [
+      "How do I find a tutor?",
+      "How do I book a lesson?",
+      "How do I pay for lessons?",
+      "What is the 'Running Session' section?",
+    ],
+    "System": [
+      "What is MeetMyTutor?",
+      "How does the system work?",
+      "How do I register or log in?",
+      "How can I contact support?",
+    ],
+  };
+
+  // --- Add message
+  function addMessage(text, sender) {
+    const msg = document.createElement("div");
+    msg.className =
+      sender === "user"
+        ? "ml-auto bg-amber-500 text-black px-3 py-2 rounded-xl text-sm max-w-[75%]"
+        : "mr-auto bg-white border border-gray-200 px-3 py-2 rounded-xl text-sm max-w-[80%]";
+    msg.textContent = text;
+    messages.appendChild(msg);
+    // Auto scroll to bottom
+    messages.scrollTo({ top: messages.scrollHeight, behavior: "smooth" });
+  }
+
+  // --- Show main categories
+  function showCategories() {
+    suggestionsDiv.innerHTML = "";
+    addMessage("👋 Hi! I'm your MeetMyTutor assistant. What would you like to ask about?", "bot");
+    Object.keys(data).forEach((cat) => {
+      const btn = document.createElement("button");
+      btn.className =
+        "bg-amber-100 text-amber-800 border border-amber-300 rounded-lg px-3 py-1 text-xs font-medium hover:bg-amber-200";
+      btn.textContent = cat;
+      btn.onclick = () => {
+        addMessage(cat, "user");
+        category = cat;
+        setTimeout(() => {
+          addMessage(`Here are some questions about ${cat}:`, "bot");
+          showQuestions(cat);
+        }, 400);
+      };
+      suggestionsDiv.appendChild(btn);
+    });
+  }
+
+  // --- Show questions
+  function showQuestions(cat) {
+    suggestionsDiv.innerHTML = "";
+    data[cat].forEach((q) => {
+      const btn = document.createElement("button");
+      btn.className =
+        "bg-amber-100 text-amber-800 border border-amber-300 rounded-lg px-3 py-1 text-xs font-medium hover:bg-amber-200";
+      btn.textContent = q;
+      btn.onclick = () => {
+        input.value = q;
+        sendBtn.click();
+      };
+      suggestionsDiv.appendChild(btn);
+    });
+
+    const backBtn = document.createElement("button");
+    backBtn.className = "bg-gray-200 text-gray-700 px-3 py-1 text-xs rounded-lg hover:bg-gray-300";
+    backBtn.textContent = "⬅ Back";
+    backBtn.onclick = showCategories;
+    suggestionsDiv.appendChild(backBtn);
+  }
+
+  // --- Bot response
+  function getResponse(msg) {
+    msg = msg.toLowerCase();
+    const responses = {
+      "meetmytutor": "MeetMyTutor connects students and tutors nearby for personalized learning with flexible scheduling.",
+      "find a tutor": "You can search tutors by subject, level, or nearest location using the 'Nearest Search' feature.",
+      "lesson negotiation": "Students can suggest a price (not below 70% of tutor’s rate). Tutors can counter-offer until agreed.",
+      "earn money": "Tutors earn from completed sessions. Payments are tracked in their Earnings section.",
+      "book a lesson": "Find your tutor, send a request, and confirm once both parties agree on details.",
+      "pay for lessons": "Students can pay via eSewa or record offline payments.",
+      "system work": "MeetMyTutor lets students find tutors, negotiate, book sessions, and learn effectively.",
+      "register": "Go to the homepage → click 'Register' or 'Login' → choose Student or Tutor.",
+      "support": "You can reach support from the Contact page or footer section (WhatsApp / email / phone).",
+    };
+
+    for (const key in responses) {
+      if (msg.includes(key)) return responses[key];
+    }
+    return "🤔 Sorry, I’m not sure about that. Try another question or pick a topic below.";
+  }
+
+  // --- Send
+  function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage(text, "user");
+    input.value = "";
+    setTimeout(() => {
+      const reply = getResponse(text);
+      addMessage(reply, "bot");
+      if (category) showQuestions(category);
+    }, 400);
+  }
+
+  // --- Listeners
+  sendBtn.onclick = sendMessage;
+  input.addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
+
+  toggleBtn.onclick = () => {
+    const visible = !chatbot.classList.contains("hidden");
+    if (visible) {
+      chatbot.classList.add("opacity-0", "translate-y-4");
+      setTimeout(() => chatbot.classList.add("hidden"), 200);
+    } else {
+      chatbot.classList.remove("hidden");
+      setTimeout(() => chatbot.classList.remove("opacity-0", "translate-y-4"), 10);
+      if (!messages.children.length) showCategories();
+    }
+  };
+
+  closeBtn.onclick = () => {
+    chatbot.classList.add("opacity-0", "translate-y-4");
+    setTimeout(() => chatbot.classList.add("hidden"), 200);
+  };
+</script>
