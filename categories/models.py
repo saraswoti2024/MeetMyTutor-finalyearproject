@@ -5,6 +5,6 @@ class districts(models.Model):
     name = models.CharField(max_length=50)
 
 class subjects_list(models.Model):
-    subject_name = models.CharField(max_length=100)
+    subject_name = models.CharField(max_length=100,unique=True)
 
 

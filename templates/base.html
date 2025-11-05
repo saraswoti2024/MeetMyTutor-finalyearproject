@@ -41,17 +41,18 @@
 
 {% include "footer.html" %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-{% if messages %}
+
+{% if messages and request.resolver_match.url_name != 'chatpage_view' %}
 <script>
     {% for message in messages %}
         Toastify({
             text: "{{ message|escapejs }}",
             duration: 4000,
             close: true,
-            gravity: "top", // top or bottom
-            position: "center", // left, center or right
+            gravity: "top",
+            position: "center",
             backgroundColor: "{% if 'error' in message.tags %}#e53935{% elif 'success' in message.tags %}#43a047{% else %}#2196f3{% endif %}",
-            stopOnFocus: true, // prevent dismiss on hover
+            stopOnFocus: true,
         }).showToast();
     {% endfor %}
 </script>

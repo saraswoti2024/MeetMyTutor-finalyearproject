@@ -58,14 +58,14 @@ def chatpage_view(request, other_user_id):
         other_profile = None
     
         # Get chat history between current_user and other_user
-    messages = Message.objects.filter(
+    chat_messages = Message.objects.filter(
         (Q(sender=current_user) & Q(reciever=other_user)) |
         (Q(sender=other_user) & Q(reciever=current_user))
     ).order_by('timestamp')  # oldest first
 
     context = {
         "other_user": other_user,
-        "messages" : messages,
+        "chat_messages" : chat_messages,
         "current_user" : current_user,
         "other_profile" : other_profile,        
     }
